@@ -74,7 +74,7 @@ router.get("/:id", (req, res, next) => {
     } else {
       //show the detail view for edit or delete
       res.render("books/details", {
-        title: "Details book",
+        title: "Edit Book's Information",
         books: bookObject
       });
     }
