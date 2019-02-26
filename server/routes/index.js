@@ -8,6 +8,7 @@ Application: COMP308-W2019-MidTerm-Test-300924228
 let express = require("express");
 let router = express.Router();
 let mongoose = require("mongoose");
+let passport = require("passport");
 
 // define the game model
 let book = require("../models/books");
@@ -26,7 +27,7 @@ router.get("/", (req, res, next) => {
 
 /* GET - displays the Login Page */
 router.get("/login", (req, res, next) => {
-  //checking if user is login
+  // check if user is already logged in
   if (!req.user) {
     res.render("auth/login", {
       title: "Login",
@@ -39,16 +40,15 @@ router.get("/login", (req, res, next) => {
 });
 
 /* POST - processes the Login Page */
-//router.post("/login", indexController.processLoginPage);
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     // server error?
     if (err) {
       return next(err);
     }
-    // if user login error?
+    // is there a user login error?
     if (!user) {
-      req.flash("loginMessage", "Login Error");
+      req.flash("loginMessage", "Authentication Error");
       return res.redirect("/login");
     }
     req.logIn(user, err => {
@@ -60,10 +60,9 @@ router.post("/login", (req, res, next) => {
     });
   })(req, res, next);
 });
+
 /* GET - displays the User Registration Page */
-//router.get("/register", indexController.displayRegisterPage);
 router.get("/register", (req, res, next) => {
-  //checking
   if (!req.user) {
     res.render("auth/register", {
       title: "Register",
@@ -74,15 +73,13 @@ router.get("/register", (req, res, next) => {
     return res.redirect("/");
   }
 });
+
 /* POST - processes the User Registration Page */
-//router.post("/register", indexController.processRegisterPage);
-
 router.post("/register", (req, res, next) => {
-  //created new user object
-
+  //console.log(req.body);
+  // define a new user object
   let newUser = new User({
     username: req.body.username,
-    //password: req.body.password
     email: req.body.email,
     displayName: req.body.displayName
   });
@@ -104,7 +101,7 @@ router.post("/register", (req, res, next) => {
       });
     } else {
       // if no error exists, then registration is successful
-
+      console.log("registration successful");
       // redirect the user
       return passport.authenticate("local")(req, res, () => {
         res.redirect("/books");
@@ -114,7 +111,6 @@ router.post("/register", (req, res, next) => {
 });
 
 /* GET - perform user logout */
-//router.get("/logout", indexController.performLogout);
 router.get("/logout", (req, res, next) => {
   req.logout();
   res.redirect("/");
